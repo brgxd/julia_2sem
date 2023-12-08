@@ -1,0 +1,334 @@
+﻿#include <iostream>
+#include <map>
+#include <list>
+#include <set>
+
+using namespace std;
+
+class fname
+{
+public:
+
+    string name;
+    string surname;
+
+    fname(string n = "", string sname = "")
+    {
+        name = n;
+        surname = sname;
+    }
+
+    fname operator=(fname n)
+    {
+        name = n.name;
+        surname = n.surname;
+        return *this;
+    }
+
+    bool operator==(fname n)
+    {
+        return (name == n.name && surname == n.surname) ? 1 : 0;
+    }
+
+    bool operator!=(fname n)
+    {
+        return(name != n.name || surname != n.surname) ? 1 : 0;
+    }
+
+    bool operator>(fname n)
+    {
+        if (surname == n.surname)
+            return (name > n.name) ? 1 : 0;
+        return (surname > n.surname) ? 1 : 0;
+    }
+
+    bool operator<(fname n)
+    {
+        if (surname == n.surname)
+            return (name < n.name) ? 1 : 0;
+        return (surname < n.surname) ? 1 : 0;
+    }
+
+    friend ostream& operator<<(ostream& s, fname n);
+};
+ostream& operator<<(ostream& s, fname n)
+{
+    s << "Surname: " << n.surname << " Name: " << n.name << "\n";
+    return s;
+}
+
+bool operator>(fname a, fname n)
+{
+    if (a.surname == n.surname)
+        return (a.name > n.name) ? 1 : 0;
+    return (a.surname > n.surname) ? 1 : 0;
+}
+
+bool operator<(fname a, fname n)
+{
+    if (a.surname == n.surname)
+        return (a.name < n.name) ? 1 : 0;
+    return (a.surname < n.surname) ? 1 : 0;
+}
+
+class programmer
+{
+public:
+    fname n;
+    string mail;
+    string s;
+    string tg;
+    string language;
+    string job;
+    int lvl;
+
+    fname getName()const { return n; }
+
+    programmer()
+    {
+        mail = "";
+        s = "";
+        tg = "";
+        language = "";
+        job = "";
+        lvl = 0;
+    }
+
+    programmer(string surname, string name, string email, string skype, string telegram, string mainlanguage, string currentjob, int level)
+    {
+        if (level > 10 || level < 1)
+        {
+            level = -1;
+        }
+        fname nn(surname, name);
+        n = nn;
+        mail = email;
+        s = skype;
+        tg = telegram;
+        language = mainlanguage;
+        job = currentjob;
+        lvl = level;
+    }
+
+    ~programmer() {}
+
+    programmer operator =(programmer p)
+    {
+        n = p.n;
+        mail = p.mail;
+        s = p.s;
+        tg = p.tg;
+        language = p.language;
+        job = p.job;
+        lvl = p.lvl;
+        return *this;
+    }
+
+    bool operator==(programmer p)
+    {
+        return (n == p.n && mail == p.mail && s == p.s && tg == p.tg && language == p.language && job == p.job && lvl == p.lvl) ? 1 : 0;
+    }
+
+    friend ostream& operator<<(ostream& s, programmer p);
+};
+
+bool operator >(programmer p1, programmer p2)
+{
+    return(p1.lvl > p2.lvl) ? 1 : 0;
+}
+
+bool operator <(programmer p1, programmer p2)
+{
+    return(p1.lvl < p2.lvl) ? 1 : 0;
+}
+
+ostream& operator<<(ostream& s, programmer p)
+{
+    s << p.lvl << " " << p.language << " " << p.n;
+    return s;
+}
+
+class Exception : public exception
+{
+protected:
+    char* str;
+public:
+    Exception(const char* s)
+    {
+        str = new char[strlen(s) + 1];
+        strcpy_s(str, strlen(s) + 1, s);
+    }
+    Exception(const Exception& e)
+    {
+        str = new char[strlen(e.str) + 1];
+        strcpy_s(str, strlen(e.str) + 1, e.str);
+    }
+    ~Exception()
+    {
+        delete[] str;
+    }
+
+    virtual void print()
+    {
+        cout << "Exception: " << str << "; " << what();
+    }
+};
+
+class SameKeyException : public Exception
+{
+protected:
+    string Key;
+public:
+    SameKeyException(const char* s, string k) : Exception(s) { Key = k; }
+    SameKeyException(const SameKeyException& c) : Exception(c) { Key = c.Key; }
+
+    virtual void print()
+    {
+        cout << "Key " << Key << " is already present. " << str;
+    }
+};
+
+
+
+//поиск по значению
+template <class T , class T1>
+list<T> znach_search(map<T, T1> m, T1 element)
+{
+    list<T> res;
+    typename map<T, T1>::iterator it_m = m.begin();
+    for (; it_m != m.end(); it_m++)
+    {
+        if (it_m->second == element)
+        {
+            T result = it_m->first;
+            res.push_back(result);
+        }     
+    }
+    return res;
+}
+
+//поиск по ключу
+template <class T, class T1>
+list<T1> key_search(map<T, T1> m, T key)
+{
+    list<T1> res;
+    typename map<T,T1>::iterator it_m = m.find(key);
+    if (it_m == m.end())
+        return res;
+    res.push_back(it_m->second);
+    return res;
+}
+
+//вывод содержимого дерева в консоль
+void show(map<fname, programmer> m)
+{
+    for (typename map<fname, programmer>::iterator it_m = m.begin(); it_m != m.end(); it_m++)
+        cout << "key: " << it_m->first << ", value: " << it_m->second << "\n";
+    cout << "\n";
+}
+
+//предикат
+bool programmerlvl(programmer value)
+{
+    return (value.lvl > 0 && value.lvl < 11) ? 1 : 0;
+}
+
+//фильтр
+template<class T, class T1>
+map<T, T1> filter(map<T, T1> m, bool(*predicate)(T1))
+{
+    map<T, T1> res;
+    for (typename map<T, T1>::iterator it_m = m.begin(); it_m != m.end(); it_m++)
+    {
+        if (predicate(it_m->second))
+            res[it_m->first] = it_m->second;
+    }
+    return res;
+}
+
+//добавление эллемента
+template<class T, class T1>
+void insert(map<T, T1> m, T key, T1 value)
+{
+    for (typename map<T, T1>::iterator it_m = m.begin(); it_m != m.end(); it_m++)
+    {
+        if (it_m->first == key)
+            throw SameKeyException("All keys must be unique", key);
+    }
+    m[key] = value;
+}
+
+//функция возвращающая различные значения дерева
+template<class T, class T1>
+set<T1> unique_values(map<T, T1> m)
+{
+    set<T1> res;
+    for (typename map<T, T1>::iterator it_m = m.begin(); it_m != m.end(); it_m++)
+        res.insert(it_m->second);
+    return res;
+}
+
+template<class T1>
+ostream& operator <<(ostream& s, list<T1>& lst)
+{
+    for (typename list<T1>::iterator b = lst.begin(); b != lst.end(); b++)
+    {
+        cout << *b << " ";
+    }
+    cout << "\n";
+    return s;
+}
+
+int main()
+{
+    try
+    {
+        programmer a("Ivan", "Ivanov", "aa", "aa", "aa", "aa", "aa", 10);
+        programmer b("Petr", "Volkov", "bb", "bb", "bb", "bb", "bb", 9);
+        programmer c("Alexandr", "Smirnov", "cc", "cc", "cc", "cc", "cc", 10);
+        programmer d("Ivan", "Ivanov", "dd", "dd", "dd", "dd", "dd", 10);
+        programmer e("Aleksey", "Jukov", "ee", "ee", "ee", "ee", "ee", 10);
+        programmer f("Ignatiy", "Alekseev", "ff", "ff", "ff", "ff", "ff", 15);
+
+       map<fname, programmer> p;
+
+       p[a.getName()] = a;
+       p[b.getName()] = b;
+       p[c.getName()] = c;
+       p[d.getName()] = d;
+       p[e.getName()] = e;
+       p[f.getName()] = f;
+
+
+       show(p);
+
+       map<fname, programmer> p2;
+
+       p2 = filter(p, programmerlvl);
+
+       show(p2);
+
+       list<fname> l = znach_search(p2, d);
+
+       cout << l << "\n";
+
+       list<programmer> l2;
+
+       l2 = key_search(p2, fname("Ivan", "Ivanov"));
+
+       cout << l2;
+
+       set<programmer> s;
+
+       s = unique_values(p2);
+
+       for (set<programmer>::iterator it = s.begin(); it != s.end(); it++)
+           cout << *it << " ";
+
+    }
+    catch(SameKeyException e)
+    {
+        cout << "\nCaught SameKeyException: "; e.print();
+    }
+}
+

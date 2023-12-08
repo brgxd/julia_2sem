@@ -1,0 +1,265 @@
+﻿#include <iostream>
+#include <map>
+#include <list>
+
+using namespace std;
+
+class fname
+{
+public:
+
+	string name;
+	string surname;
+
+	fname(string n = "", string sname = "")
+	{
+		name = n;
+		surname = sname;
+	}
+
+	fname operator=(fname n)
+	{
+		name = n.name;
+		surname = n.surname;
+		return *this;
+	}
+
+	bool operator==(fname n)
+	{
+		return (name == n.name && surname == n.surname) ? 1 : 0;
+	}
+
+	bool operator!=(fname n)
+	{
+		return(name != n.name || surname != n.surname) ? 1 : 0;
+	}
+
+	bool operator>(fname n)
+	{
+		if (surname == n.surname)
+			return (name > n.name) ? 1 : 0;
+		return (surname > n.surname) ? 1 : 0;
+	}
+
+	bool operator<(fname n)
+	{
+		if (surname == n.surname)
+			return (name < n.name) ? 1 : 0;
+		return (surname < n.surname) ? 1 : 0;
+	}
+
+	friend ostream& operator<<(ostream& s, fname n);
+};
+ostream& operator<<(ostream& s, fname n)
+{
+	s << "Surname: " << n.surname << " Name: " << n.name << "\n";
+	return s;
+}
+
+bool operator>(fname a, fname n)
+{
+	if (a.surname == n.surname)
+		return (a.name > n.name) ? 1 : 0;
+	return (a.surname > n.surname) ? 1 : 0;
+}
+
+bool operator<(fname a, fname n)
+{
+	if (a.surname == n.surname)
+		return (a.name < n.name) ? 1 : 0;
+	return (a.surname < n.surname) ? 1 : 0;
+}
+
+class programmer
+{
+public:
+	fname n;
+	string mail;
+	string s;
+	string tg;
+	string language;
+	string job;
+	int lvl;
+
+	fname getName()const { return n; }
+
+	programmer()
+	{
+		mail = "";
+		s = "";
+		tg = "";
+		language = "";
+		job = "";
+		lvl = 0;
+	}
+
+	programmer(string surname, string name, string email, string skype, string telegram, string mainlanguage, string currentjob, int level)
+	{
+		if (level > 10 || level < 1)
+		{
+			level = -1;
+		}
+		fname nn(surname, name);
+		n = nn;
+		mail = email;
+		s = skype;
+		tg = telegram;
+		language = mainlanguage;
+		job = currentjob;
+		lvl = level;
+	}
+
+	~programmer() {}
+
+	programmer operator =(programmer p)
+	{
+		n = p.n;
+		mail = p.mail;
+		s = p.s;
+		tg = p.tg;
+		language = p.language;
+		job = p.job;
+		lvl = p.lvl;
+		return *this;
+	}
+
+	bool operator==(programmer p)
+	{
+		(n == p.n && mail == p.mail && s == p.s && tg == p.tg && language == p.language && job == p.job && lvl == p.lvl) ? 1 : 0;
+	}
+
+	friend ostream& operator<<(ostream& s, programmer p);
+};
+
+ostream& operator<<(ostream& s, programmer p)
+{
+	s << p.lvl << " " << p.language << " " << p.n;
+	return s;
+}
+
+//поиск по значению
+template <class T, class T1>
+list<T> znach_search(multimap<T, T1> m, T1 element)
+{
+    list<T> res;
+    typename multimap<T,T1>::iterator it_m = m.begin();
+    for (; it_m != m.end(); it_m++)
+    {
+        if (it_m->second == element)
+        {
+            T result = it_m->first;
+            res.push_back(result);
+        }
+    }
+    return res;
+}
+
+//поиск по ключу
+template <class T, class T1>
+list<T1> key_search(multimap<T, T1> m, T key)
+{
+    list<T1> res;
+    typename multimap<T, T1>::iterator it_m = m.find(key);
+    if (it_m == m.end())
+        return res;
+    res.push_back(it_m->second);
+    return res;
+}
+
+//вывод содержимого дерева в консоль
+template <class T, class T1>
+void show(multimap<T, T1> m)
+{
+    for (typename multimap<T, T1>::iterator it_m = m.begin(); it_m != m.end(); it_m++)
+        cout << "key: " << it_m->first << ", value: " << it_m->second << "\n";
+    cout << "\n";
+}
+
+//предикат
+bool programmerlvl(programmer value)
+{
+    return (value.lvl > 0 && value.lvl < 11) ? 1 : 0;
+}
+
+//фильтр
+template<class T, class T1>
+multimap<T, T1> filter(multimap<T, T1> m, bool(*predicate)(T1))
+{
+    multimap<T, T1> res;
+    for (typename multimap<T, T1>::iterator it_m = m.begin(); it_m != m.end(); it_m++)
+    {
+        if (predicate(it_m->second))
+            res.insert(*it_m);      
+    }
+    return res;
+}
+
+//функция возвращающая значения дерева с одинаковыми ключами
+template<class T, class T1>
+list<pair<T, T1>> same_keys(multimap<T, T1> m, T key)
+{
+    list<pair<T, T1>> res;
+    for (typename multimap<T, T1>::iterator it_m = m.begin(); it_m != m.end(); it_m++)
+    {
+        if (it_m->first == key)
+            res.push_back(*it_m);
+    }
+    return res;
+}
+
+template<class T1>
+ostream& operator <<(ostream& s, list<T1>& lst)
+{
+    for (typename list<T1>::iterator b = lst.begin(); b != lst.end(); b++)
+    {
+        cout << *b << " ";
+    }
+    cout << "\n";
+    return s;
+}
+
+template<class T, class T1>
+ostream& operator <<(ostream& s, pair<T, T1>& p)
+{
+    cout << "First: " << p.first << " Second: " << p.second << "\n";
+    return s;
+}
+
+
+
+int main()
+{
+	programmer a("aa", "aa", "aa", "aa", "aa", "aa", "aa", 10);
+	programmer b("bb", "bb", "bb", "bb", "bb", "bb", "bb", 9);
+	programmer c("cc", "cc", "cc", "cc", "cc", "cc", "cc", 10);
+	programmer d("dd", "dd", "dd", "dd", "dd", "dd", "dd", 10);
+	programmer e("ee", "ee", "ee", "ee", "ee", "ee", "ee", 10);
+	programmer f("ff", "ff", "ff", "ff", "ff", "ff", "ff", 15);
+	programmer af("aa", "aa", "faf", "faf", "faf", "faf", "faf", 15);
+
+    multimap<fname, programmer> p1;
+
+	p1.emplace(a.getName(), a);
+	p1.emplace(b.getName(), b);
+	p1.emplace(c.getName(), c);
+	p1.emplace(d.getName(), d);
+	p1.emplace(e.getName(), e);
+	p1.emplace(f.getName(), f);
+	p1.emplace(af.getName(), af);
+
+    show(p1);
+
+    list<programmer> l;
+
+	fname s("Inov", "Ivan");
+    //p1.find(s);
+    l = key_search(p1, s);
+
+    cout << l;
+
+	multimap<fname, programmer> p2;
+
+	p2 = filter(p1, programmerlvl);
+
+    show(p2);
+}
